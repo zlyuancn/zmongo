@@ -46,11 +46,39 @@ func (m *Collection) BulkWrite(models []mongo.WriteModel, opts ...*options.BulkW
     return m.Collection.BulkWrite(ctx, models, opts...)
 }
 
+func (m *Collection) CountDocuments(filter interface{}, opts ...*options.CountOptions) (int64, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.Collection.CountDocuments(ctx, filter, opts...)
+}
+
 func (m *Collection) DeleteOne(filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
     ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
     defer cancel()
 
     return m.Collection.DeleteOne(ctx, filter, opts...)
+}
+
+func (m *Collection) Drop() error {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.Collection.Drop(ctx)
+}
+
+func (m *Collection) Distinct(fieldName string, filter interface{}, opts ...*options.DistinctOptions) ([]interface{}, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.Collection.Distinct(ctx, fieldName, filter, opts...)
+}
+
+func (m *Collection) EstimatedDocumentCount(opts ...*options.EstimatedDocumentCountOptions) (int64, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.Collection.EstimatedDocumentCount(ctx, opts...)
 }
 
 func (m *Collection) DeleteMany(filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error) {
@@ -133,4 +161,11 @@ func (m *Collection) UpdateMany(filter, update interface{}, opts ...*options.Upd
     defer cancel()
 
     return m.Collection.UpdateMany(ctx, filter, update, opts...)
+}
+
+func (m *Collection) Watch(pipeline interface{}, opts ...*options.ChangeStreamOptions) (*mongo.ChangeStream, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.Collection.Watch(ctx, pipeline, opts...)
 }
