@@ -14,7 +14,10 @@ import (
 
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
+    "go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+const DefaultDoTimeout = time.Second * 5
 
 type Config struct {
     Address     []string      // 连接地址, 如: []string{"127.0.0.1:27017"}
@@ -27,7 +30,7 @@ type Config struct {
 }
 
 type Client struct {
-    Client *mongo.Client
+    *mongo.Client
     Config
 }
 
@@ -53,17 +56,37 @@ func New(conf *Config) (*Client, error) {
         return nil, err
     }
 
-    return &Client{
+    m := &Client{
         Client: client,
         Config: *conf,
-    }, nil
+    }
+    if m.DoTimeout == 0 {
+        m.DoTimeout = DefaultDoTimeout
+    }
+
+    return m, nil
 }
 
 // 返回一个文档集合
-func (m *Client) Coll(database, collname string) *Collection {
+func (m *Client) Coll(database, collname string, opts ...*options.DatabaseOptions) *Collection {
     if database == "" {
         database = m.DBName
     }
-    coll := m.Client.Database(database).Collection(collname)
+    coll := m.Client.Database(database, opts...).Collection(collname)
     return makeCollection(m, coll)
+}
+
+// 关闭连接
+func (m *Client) Close() error {
+    ctx, cancel := context.WithTimeout(context.Background(), m.DialTimeout)
+    defer cancel()
+
+    return m.Client.Disconnect(ctx)
+}
+
+func (m *Client) Ping(rp *readpref.ReadPref) error {
+    ctx, cancel := context.WithTimeout(context.Background(), m.DialTimeout)
+    defer cancel()
+
+    return m.Client.Ping(ctx, rp)
 }
