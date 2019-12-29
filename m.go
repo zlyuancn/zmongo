@@ -65,8 +65,5 @@ func (m *Client) Coll(database, collname string) *Collection {
         database = m.DBName
     }
     coll := m.Client.Database(database).Collection(collname)
-    return &Collection{
-        c:    m,
-        Coll: coll,
-    }
+    return makeCollection(m, coll)
 }
