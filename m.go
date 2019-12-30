@@ -17,7 +17,10 @@ import (
     "go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-const DefaultDoTimeout = time.Second * 5
+const (
+    DefaultDialTimeout = time.Second * 5
+    DefaultDoTimeout   = time.Second * 5
+)
 
 type Config struct {
     Address     []string      // 连接地址, 如: []string{"127.0.0.1:27017"}
@@ -35,20 +38,30 @@ type Client struct {
 }
 
 func New(conf *Config) (*Client, error) {
-    opt := &options.ClientOptions{
-        Hosts:          conf.Address,
-        MaxPoolSize:    &conf.PoolSize,
-        ConnectTimeout: &conf.DialTimeout,
+    m := &Client{
+        Config: *conf,
     }
-    if conf.UserName != "" {
+    if m.DialTimeout == 0 {
+        m.DialTimeout = DefaultDialTimeout
+    }
+    if m.DoTimeout == 0 {
+        m.DoTimeout = DefaultDoTimeout
+    }
+
+    opt := &options.ClientOptions{
+        Hosts:          m.Address,
+        MaxPoolSize:    &m.PoolSize,
+        ConnectTimeout: &m.DialTimeout,
+    }
+    if m.UserName != "" {
         opt.Auth = &options.Credential{
-            AuthSource: conf.DBName,
-            Username:   conf.UserName,
-            Password:   conf.Password,
+            AuthSource: m.DBName,
+            Username:   m.UserName,
+            Password:   m.Password,
         }
     }
 
-    ctx, cancel := context.WithTimeout(context.Background(), conf.DialTimeout)
+    ctx, cancel := context.WithTimeout(context.Background(), m.DialTimeout)
     defer cancel()
 
     client, err := mongo.Connect(ctx, opt)
@@ -56,14 +69,7 @@ func New(conf *Config) (*Client, error) {
         return nil, err
     }
 
-    m := &Client{
-        Client: client,
-        Config: *conf,
-    }
-    if m.DoTimeout == 0 {
-        m.DoTimeout = DefaultDoTimeout
-    }
-
+    m.Client = client
     return m, nil
 }
 
@@ -85,7 +91,7 @@ func (m *Client) Close() error {
 }
 
 func (m *Client) Ping(rp *readpref.ReadPref) error {
-    ctx, cancel := context.WithTimeout(context.Background(), m.DialTimeout)
+    ctx, cancel := context.WithTimeout(context.Background(), m.DoTimeout)
     defer cancel()
 
     return m.Client.Ping(ctx, rp)
