@@ -18,8 +18,10 @@ import (
 )
 
 const (
+    // 默认连接超时
     DefaultDialTimeout = time.Second * 5
-    DefaultDoTimeout   = time.Second * 5
+    // 默认操作超时
+    DefaultDoTimeout = time.Second * 5
 )
 
 type Config struct {
@@ -37,6 +39,7 @@ type Client struct {
     Config
 }
 
+// 创建一个客户端
 func New(conf *Config) (*Client, error) {
     m := &Client{
         Config: *conf,
@@ -90,6 +93,7 @@ func (m *Client) Close() error {
     return m.Client.Disconnect(ctx)
 }
 
+// ping
 func (m *Client) Ping(rp *readpref.ReadPref) error {
     ctx, cancel := context.WithTimeout(context.Background(), m.DoTimeout)
     defer cancel()

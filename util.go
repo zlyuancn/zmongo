@@ -14,6 +14,7 @@ import (
     "go.mongodb.org/mongo-driver/bson"
 )
 
+// 构建用于排序的bson
 func MakeSortBson(fields ...string) bson.D {
     var order bson.D
     for _, field := range fields {

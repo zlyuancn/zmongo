@@ -26,6 +26,7 @@ func makeCursor(c *Client, cur *mongo.Cursor) *Cursor {
     }
 }
 
+// 下一个文档
 func (m *Cursor) Next() bool {
     ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
     defer cancel()
@@ -33,6 +34,7 @@ func (m *Cursor) Next() bool {
     return m.Cursor.Next(ctx)
 }
 
+// 下一个文档
 func (m *Cursor) TryNext() bool {
     ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
     defer cancel()
@@ -40,6 +42,7 @@ func (m *Cursor) TryNext() bool {
     return m.Cursor.TryNext(ctx)
 }
 
+// 关闭游标
 func (m *Cursor) Close() error {
     ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
     defer cancel()
@@ -47,6 +50,7 @@ func (m *Cursor) Close() error {
     return m.Cursor.Close(ctx)
 }
 
+// 获取所有文档并解码到results
 func (m *Cursor) All(results interface{}) error {
     ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
     defer cancel()
