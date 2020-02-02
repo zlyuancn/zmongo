@@ -18,6 +18,9 @@
 
 ## 我一开始使用的[mgo](https://github.com/go-mgo/mgo)开发, 但是它好久都不更新了, 正好出现了[官方客户端](https://github.com/mongodb/mongo-go-driver). 但是我发现官方客户端虽然功能更全面但是使用相当繁琐, 开发时整体代码逻辑不是很好看, 部分操作结果除了检查err之外还需要检查resp, 所以zmongo诞生了 
 
+# 文档
+[godoc](https://godoc.org/github.com/zlyuancn/zmongo)
+
 # 开始
 ```go
     db, err := zmongo.New(&zmongo.Config{
