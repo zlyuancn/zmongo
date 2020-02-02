@@ -22,16 +22,19 @@ const (
     DefaultDialTimeout = time.Second * 5
     // 默认操作超时
     DefaultDoTimeout = time.Second * 5
+    // 默认Socket超时
+    DefaultSocketTimeout = time.Second * 5
 )
 
 type Config struct {
-    Address     []string      // 连接地址, 如: []string{"127.0.0.1:27017"}
-    DBName      string        // 库名
-    UserName    string        // 用户名
-    Password    string        // 密码
-    PoolSize    uint64        // 连接池的数量
-    DialTimeout time.Duration // 连接超时(毫秒
-    DoTimeout   time.Duration // 操作超时
+    Address       []string      // 连接地址, 如: []string{"127.0.0.1:27017"}
+    DBName        string        // 库名
+    UserName      string        // 用户名
+    Password      string        // 密码
+    PoolSize      uint64        // 连接池的数量
+    DialTimeout   time.Duration // 连接超时(毫秒
+    DoTimeout     time.Duration // 操作超时
+    SocketTimeout time.Duration // Socket超时
 }
 
 type Client struct {
@@ -50,11 +53,15 @@ func New(conf *Config) (*Client, error) {
     if m.DoTimeout == 0 {
         m.DoTimeout = DefaultDoTimeout
     }
+    if m.SocketTimeout == 0 {
+        m.SocketTimeout = DefaultSocketTimeout
+    }
 
     opt := &options.ClientOptions{
         Hosts:          m.Address,
         MaxPoolSize:    &m.PoolSize,
         ConnectTimeout: &m.DialTimeout,
+        SocketTimeout:  &m.SocketTimeout,
     }
     if m.UserName != "" {
         opt.Auth = &options.Credential{
