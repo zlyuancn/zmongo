@@ -35,6 +35,7 @@ type Config struct {
     DialTimeout   time.Duration // 连接超时(毫秒
     DoTimeout     time.Duration // 操作超时
     SocketTimeout time.Duration // Socket超时
+    Direct        bool          // 直接连接
 }
 
 type Client struct {
@@ -62,6 +63,7 @@ func New(conf *Config) (*Client, error) {
         MaxPoolSize:    &m.PoolSize,
         ConnectTimeout: &m.DialTimeout,
         SocketTimeout:  &m.SocketTimeout,
+        Direct:         &m.Direct,
     }
     if m.UserName != "" {
         opt.Auth = &options.Credential{
