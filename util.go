@@ -15,6 +15,7 @@ import (
 )
 
 // 构建用于排序的bson
+// 示例: sort := MakeSortBson("level", "-create_time")
 func MakeSortBson(fields ...string) bson.D {
     var order bson.D
     for _, field := range fields {
@@ -45,4 +46,27 @@ func MakeSortBson(fields ...string) bson.D {
         }
     }
     return order
+}
+
+// 构建用于选择返回字段的bson
+// 示例: project := MakeSelectBson("-_id", "create_time")
+func MakeSelectBson(fields ...string) bson.M {
+    project := make(bson.M, len(fields))
+    for _, field := range fields {
+        n := 1
+        if field != "" {
+            switch field[0] {
+            case '+':
+                field = field[1:]
+            case '-':
+                n = 0
+                field = field[1:]
+            }
+        }
+        if field == "" {
+            panic("Project: empty field name")
+        }
+        project[field] = n
+    }
+    return project
 }
