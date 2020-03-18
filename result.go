@@ -10,6 +10,7 @@ package zmongo
 
 import (
     "context"
+    "io"
 
     "go.mongodb.org/mongo-driver/mongo"
 )
@@ -39,6 +40,49 @@ func (m *FindAllResult) DecodeWithContext(ctx context.Context, a interface{}) er
         return err
     }
     return nil
+}
+
+// 解码下一个数据到a然后关闭游标
+func (m *FindAllResult) DecodeOne(a interface{}) error {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.DecodeOneWithContext(ctx, a)
+}
+
+// 解码下一个数据到a然后关闭游标
+func (m *FindAllResult) DecodeOneWithContext(ctx context.Context, a interface{}) error {
+    if m.err != nil {
+        return m.err
+    }
+    defer m.Close()
+
+    if !m.cur.Next(ctx) {
+        return io.EOF
+    }
+
+    return m.cur.Decode(a)
+}
+
+// 解码下一个数据到a
+func (m *FindAllResult) Next(a interface{}) error {
+    ctx, cancel := context.WithTimeout(context.Background(), m.c.DoTimeout)
+    defer cancel()
+
+    return m.NextWithContext(ctx, a)
+}
+
+// 解码下一个数据到a
+func (m *FindAllResult) NextWithContext(ctx context.Context, a interface{}) error {
+    if m.err != nil {
+        return m.err
+    }
+
+    if !m.cur.Next(ctx) {
+        return io.EOF
+    }
+
+    return m.cur.Decode(a)
 }
 
 // 获取错误
