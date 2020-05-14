@@ -10,6 +10,8 @@ package zmongo
 
 import (
     "errors"
+
+    "go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
@@ -23,4 +25,6 @@ var (
     ErrNoUpdate = ErrNoMatchOrInsert
     // 没有删除
     ErrNoDelete = ErrNoMatch
+    // 没有文档
+    ErrNoDocuments = mongo.ErrNoDocuments
 )
